@@ -1,0 +1,6 @@
+{
+  "products": [
+    { "id": "1", "title": "macbook pro", "slug": "macbook-pro" },
+    { "id": "2", "title": "macbook air", "slug": "macbook-air" }
+  ]
+}
