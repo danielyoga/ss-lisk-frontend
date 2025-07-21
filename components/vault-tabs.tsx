@@ -16,13 +16,13 @@ export function VaultTabs() {
       <TabsList className="w-full rounded-none h-12 p-0 shadow-none border-none">
         <TabsTrigger
           value="deposit"
-          className="rounded-none data-[state=active]:shadow-none data-[state=active]:border-b-fuchsia-600"
+          className="rounded-none data-[state=active]:shadow-none data-[state=active]:border-b-orange-600"
         >
           Deposit
         </TabsTrigger>
         <TabsTrigger
           value="withdraw"
-          className="rounded-none data-[state=active]:shadow-none data-[state=active]:border-b-fuchsia-600"
+          className="rounded-none data-[state=active]:shadow-none data-[state=active]:border-b-orange-600"
         >
           Withdraw
         </TabsTrigger>
@@ -42,7 +42,7 @@ export function VaultTabs() {
           <CardFooter className="mt-3">
             <Button
               size={"lg"}
-              className="w-full bg-fuchsia-700 hover:bg-fuchsia-600"
+              className="w-full bg-orange-700 hover:bg-orange-600"
             >
               Deposit
             </Button>
@@ -64,7 +64,7 @@ export function VaultTabs() {
           <CardFooter className="mt-3">
             <Button
               size={"lg"}
-              className="w-full bg-fuchsia-700 hover:bg-fuchsia-600"
+              className="w-full bg-orange-700 hover:bg-orange-600"
             >
               Withdraw
             </Button>
