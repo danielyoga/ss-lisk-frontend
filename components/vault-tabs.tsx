@@ -65,7 +65,7 @@ export function VaultTabs() {
               </div>
               <Input
                 id="amount-deposit"
-                type="number"
+                type="text"
                 placeholder="Enter your amount..."
                 value={amount.deposit}
                 onChange={handleAmountChange("deposit")}
@@ -92,7 +92,7 @@ export function VaultTabs() {
               </div>
               <Input
                 id="amount-withdraw"
-                type="number"
+                type="text"
                 placeholder="Enter your amount..."
                 value={amount.withdraw}
                 onChange={handleAmountChange("withdraw")}
@@ -116,6 +116,7 @@ export function VaultTabs() {
               <Label htmlFor="amount-mint">Mint Amount</Label>
               <Input
                 id="amount-mint"
+                type="text"
                 placeholder="Enter your amount..."
                 value={amount.mint}
                 onChange={handleAmountChange("mint")}
