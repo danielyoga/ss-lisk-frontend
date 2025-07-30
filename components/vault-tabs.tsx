@@ -1,138 +1,216 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
+import { depositToReksadana, withdrawFromReksadana, mintUSDC } from "../lib/web3";
+import { ethers } from "ethers";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+export default function VaultTabs() {
+  const [activeTab, setActiveTab] = useState("deposit");
+  const [depositAmount, setDepositAmount] = useState("");
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [mintAmount, setMintAmount] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-type AmountType = {
-  deposit: string;
-  withdraw: string;
-  mint: string;
-};
+  const handleDeposit = async () => {
+    if (!depositAmount || parseFloat(depositAmount) <= 0) {
+      setError("Please enter a valid amount");
+      return;
+    }
 
-type enumAmountType = "deposit" | "withdraw" | "mint";
+    setLoading(true);
+    setError("");
+    setSuccess("");
 
-export function VaultTabs() {
-  const [amount, setAmount] = useState<AmountType>({
-    deposit: "",
-    withdraw: "",
-    mint: "",
-  });
+    try {
+      const amount = ethers.parseUnits(depositAmount, 6); // USDC has 6 decimals
+      await depositToReksadana(amount);
+      setSuccess("Deposit successful!");
+      setDepositAmount("");
+    } catch (err: any) {
+      setError(err.message || "Deposit failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleAmountChange =
-    (type: enumAmountType) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      let { value } = e.target;
-      value = value.replace(/[^0-9]/g, "");
-      setAmount((prev) => ({
-        ...prev,
-        [type]: value,
-      }));
-    };
+  const handleWithdraw = async () => {
+    if (!withdrawAmount || parseFloat(withdrawAmount) <= 0) {
+      setError("Please enter a valid amount");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const shares = ethers.parseUnits(withdrawAmount, 18); // RKS has 18 decimals
+      await withdrawFromReksadana(shares);
+      setSuccess("Withdrawal successful!");
+      setWithdrawAmount("");
+    } catch (err: any) {
+      setError(err.message || "Withdrawal failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMint = async () => {
+    if (!mintAmount || parseFloat(mintAmount) <= 0) {
+      setError("Please enter a valid amount");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const amount = ethers.parseUnits(mintAmount, 6); // USDC has 6 decimals
+      await mintUSDC(amount);
+      setSuccess("USDC minted successfully!");
+      setMintAmount("");
+    } catch (err: any) {
+      setError(err.message || "Minting failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <Tabs defaultValue="deposit">
-      <TabsList className="w-full rounded-none h-12 p-0 shadow-none border-none">
-        <TabsTrigger
-          value="deposit"
-          className="rounded-none data-[state=active]:shadow-none data-[state=active]:border-b-orange-600"
+    <div className="w-full max-w-md mx-auto">
+      {/* Tab Navigation */}
+      <div className="flex border-b border-gray-200 mb-6">
+        <button
+          onClick={() => setActiveTab("deposit")}
+          className={`flex-1 py-2 px-4 text-sm font-medium ${
+            activeTab === "deposit"
+              ? "text-blue-600 border-b-2 border-blue-600"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
         >
           Deposit
-        </TabsTrigger>
-        <TabsTrigger
-          value="withdraw"
-          className="rounded-none data-[state=active]:shadow-none data-[state=active]:border-b-orange-600"
+        </button>
+        <button
+          onClick={() => setActiveTab("withdraw")}
+          className={`flex-1 py-2 px-4 text-sm font-medium ${
+            activeTab === "withdraw"
+              ? "text-blue-600 border-b-2 border-blue-600"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
         >
           Withdraw
-        </TabsTrigger>
-        <TabsTrigger
-          value="mint"
-          className="rounded-none data-[state=active]:shadow-none data-[state=active]:border-b-orange-600"
+        </button>
+        <button
+          onClick={() => setActiveTab("mint")}
+          className={`flex-1 py-2 px-4 text-sm font-medium ${
+            activeTab === "mint"
+              ? "text-blue-600 border-b-2 border-blue-600"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
         >
-          Mint
-        </TabsTrigger>
-      </TabsList>
-      <TabsContent value="deposit">
-        <Card className="rounded-t-none gap-0 border-none shadow-none">
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="amount-deposit">Deposit Amount</Label>
-                <span className="text-xs">0.0 MUSDC</span>
-              </div>
-              <Input
-                id="amount-deposit"
-                type="text"
-                placeholder="Enter your amount..."
-                value={amount.deposit}
-                onChange={handleAmountChange("deposit")}
+          Mint USDC
+        </button>
+      </div>
+
+      {/* Error/Success Messages */}
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          {error}
+        </div>
+      )}
+      {success && (
+        <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+          {success}
+        </div>
+      )}
+
+      {/* Tab Content */}
+      {activeTab === "deposit" && (
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Deposit USDC</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Amount (USDC)
+              </label>
+              <input
+                type="number"
+                value={depositAmount}
+                onChange={(e) => setDepositAmount(e.target.value)}
+                placeholder="Enter amount"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={loading}
               />
             </div>
-          </CardContent>
-          <CardFooter className="mt-3">
-            <Button
-              size={"lg"}
-              className="w-full bg-orange-700 hover:bg-orange-600"
+            <button
+              onClick={handleDeposit}
+              disabled={loading}
+              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Deposit
-            </Button>
-          </CardFooter>
-        </Card>
-      </TabsContent>
-      <TabsContent value="withdraw">
-        <Card className="rounded-t-none gap-0 border-none shadow-none">
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="amount-withdraw">Withdraw Amount</Label>
-                <span className="text-xs">0.0 MUSDC</span>
-              </div>
-              <Input
-                id="amount-withdraw"
-                type="text"
-                placeholder="Enter your amount..."
-                value={amount.withdraw}
-                onChange={handleAmountChange("withdraw")}
+              {loading ? "Processing..." : "Deposit"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "withdraw" && (
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Withdraw RKS</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Amount (RKS)
+              </label>
+              <input
+                type="number"
+                value={withdrawAmount}
+                onChange={(e) => setWithdrawAmount(e.target.value)}
+                placeholder="Enter amount"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={loading}
               />
             </div>
-          </CardContent>
-          <CardFooter className="mt-3">
-            <Button
-              size={"lg"}
-              className="w-full bg-orange-700 hover:bg-orange-600"
+            <button
+              onClick={handleWithdraw}
+              disabled={loading}
+              className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Withdraw
-            </Button>
-          </CardFooter>
-        </Card>
-      </TabsContent>
-      <TabsContent value="mint">
-        <Card className="rounded-t-none gap-0 border-none shadow-none">
-          <CardContent>
-            <div className="space-y-3">
-              <Label htmlFor="amount-mint">Mint Amount</Label>
-              <Input
-                id="amount-mint"
-                type="text"
-                placeholder="Enter your amount..."
-                value={amount.mint}
-                onChange={handleAmountChange("mint")}
+              {loading ? "Processing..." : "Withdraw"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "mint" && (
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Mint USDC (Testnet)</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Amount (USDC)
+              </label>
+              <input
+                type="number"
+                value={mintAmount}
+                onChange={(e) => setMintAmount(e.target.value)}
+                placeholder="Enter amount"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={loading}
               />
             </div>
-          </CardContent>
-          <CardFooter className="mt-3">
-            <Button
-              size={"lg"}
-              className="w-full bg-orange-700 hover:bg-orange-600"
+            <button
+              onClick={handleMint}
+              disabled={loading}
+              className="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Mint
-            </Button>
-          </CardFooter>
-        </Card>
-      </TabsContent>
-    </Tabs>
+              {loading ? "Processing..." : "Mint USDC"}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
