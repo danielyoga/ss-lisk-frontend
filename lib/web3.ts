@@ -57,7 +57,7 @@ export async function getUSDCBalance(address: string): Promise<bigint> {
 // Check if contract is deployed
 export async function isContractDeployed(address: string): Promise<boolean> {
   try {
-    const provider = ethers.JsonRpcProvider(NETWORK_CONFIG.rpcUrl);
+    const provider = new ethers.JsonRpcProvider(NETWORK_CONFIG.rpcUrl);
     const code = await provider.getCode(address);
     return code !== "0x";
   } catch (error) {
@@ -92,16 +92,16 @@ export async function depositToReksadana(amount: bigint): Promise<boolean> {
     console.log("Deposit confirmed");
     
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error depositing to Reksadana:", error);
     
     // Provide user-friendly error messages
     if (error.code === 4001) {
-      throw new Error("Transaction was rejected by user. Please try again and approve the transaction in MetaMask.");
+      throw new Error("Transaction was rejected. Please approve the transaction in MetaMask to continue.");
     } else if (error.message?.includes("insufficient funds")) {
-      throw new Error("Insufficient funds. Please check your USDC balance.");
+      throw new Error("Insufficient funds for transaction. Please check your balance.");
     } else if (error.message?.includes("execution reverted")) {
-      throw new Error("Transaction failed. Please check your balance and try again.");
+      throw new Error("Transaction failed. Please check your input and try again.");
     } else {
       throw new Error(`Transaction failed: ${error.message || "Unknown error"}`);
     }
@@ -112,48 +112,58 @@ export async function depositToReksadana(amount: bigint): Promise<boolean> {
 export async function withdrawFromReksadana(shares: bigint): Promise<boolean> {
   try {
     const signer = await getSigner();
-    const contract = new ethers.Contract(CONTRACT_ADDRESSES.REKSADANA, REKSADANA_ABI, signer);
+    const reksadanaContract = new ethers.Contract(CONTRACT_ADDRESSES.REKSADANA, REKSADANA_ABI, signer);
     
     console.log("Withdrawing from Reksadana...");
-    const tx = await contract.withdraw(shares);
-    console.log("Withdraw transaction hash:", tx.hash);
+    const withdrawTx = await reksadanaContract.withdraw(shares);
+    console.log("Withdraw transaction hash:", withdrawTx.hash);
     
-    await tx.wait();
+    await withdrawTx.wait();
     console.log("Withdrawal confirmed");
     
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error withdrawing from Reksadana:", error);
     
     // Provide user-friendly error messages
     if (error.code === 4001) {
-      throw new Error("Transaction was rejected by user. Please try again and approve the transaction in MetaMask.");
-    } else if (error.message?.includes("InsufficientShares")) {
-      throw new Error("Insufficient shares to withdraw. Please check your balance.");
+      throw new Error("Transaction was rejected. Please approve the transaction in MetaMask to continue.");
+    } else if (error.message?.includes("insufficient funds")) {
+      throw new Error("Insufficient funds for transaction. Please check your balance.");
     } else if (error.message?.includes("execution reverted")) {
-      throw new Error("Withdrawal failed. Please check your shares balance and try again.");
+      throw new Error("Transaction failed. Please check your input and try again.");
     } else {
-      throw new Error(`Withdrawal failed: ${error.message || "Unknown error"}`);
+      throw new Error(`Transaction failed: ${error.message || "Unknown error"}`);
     }
   }
 }
 
-// Mint USDC (for testing)
+// Mint USDC
 export async function mintUSDC(amount: bigint): Promise<boolean> {
   try {
     const signer = await getSigner();
-    const contract = new ethers.Contract(CONTRACT_ADDRESSES.MOCK_USDC, MOCK_USDC_ABI, signer);
+    const usdcContract = new ethers.Contract(CONTRACT_ADDRESSES.MOCK_USDC, MOCK_USDC_ABI, signer);
     
     console.log("Minting USDC...");
-    const tx = await contract.mint(await signer.getAddress(), amount);
-    console.log("Mint transaction hash:", tx.hash);
+    const mintTx = await usdcContract.mint(await signer.getAddress(), amount);
+    console.log("Mint transaction hash:", mintTx.hash);
     
-    await tx.wait();
+    await mintTx.wait();
     console.log("USDC minted successfully");
     
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error minting USDC:", error);
-    throw new Error(`Failed to mint USDC: ${error.message || "Unknown error"}`);
+    
+    // Provide user-friendly error messages
+    if (error.code === 4001) {
+      throw new Error("Transaction was rejected. Please approve the transaction in MetaMask to continue.");
+    } else if (error.message?.includes("insufficient funds")) {
+      throw new Error("Insufficient funds for transaction. Please check your balance.");
+    } else if (error.message?.includes("execution reverted")) {
+      throw new Error("Transaction failed. Please check your input and try again.");
+    } else {
+      throw new Error(`Transaction failed: ${error.message || "Unknown error"}`);
+    }
   }
 } 

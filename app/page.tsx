@@ -1,4 +1,4 @@
-import { VaultInterface } from "@/components/vault-interface";
+import VaultInterface from "@/components/vault-interface";
 
 export default function Home() {
   return (

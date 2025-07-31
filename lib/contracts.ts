@@ -816,15 +816,17 @@ export const MOCK_USDC_ABI = [
   }
 ];
 
-// Contract addresses - UPDATED WITH REKSADANA CONTRACT
+// Contract addresses - LOCAL ANVIL NETWORK WITH MOCK TOKENS
 export const CONTRACT_ADDRESSES = {
-  REKSADANA: "0x59c7E6B2c565Ff92B762523BD6B778CE66dC0302", // Existing address - will be updated after deployment
-  MOCK_USDC: "0x9687796759CAbecC1674A4Aaf23889fC9EC2FCA2", // Existing address - will be updated after deployment
+  REKSADANA: "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318", // Reksadana with mock tokens
+  MOCK_USDC: "0x5FbDB2315678afecb367f032d93F642f64180aa3", // MockUSDC
+  MOCK_WETH: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512", // MockWETH
+  MOCK_WBTC: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0", // MockWBTC
 } as const;
 
-// Network configuration
+// Local Anvil Network Configuration
 export const NETWORK_CONFIG = {
-  chainId: 4202, // Lisk Sepolia
-  name: "Lisk Sepolia",
-  rpcUrl: "https://rpc.sepolia-api.lisk.com",
+  chainId: 31337, // Anvil default
+  name: "Local Anvil",
+  rpcUrl: "http://localhost:8545",
 } as const; 

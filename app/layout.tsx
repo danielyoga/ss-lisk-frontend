@@ -1,32 +1,21 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
 import { WalletProvider } from "@/lib/wallet-context";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-});
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: {
-    template: "%s - Vault DApp",
-    default: "Vault DApp",
-  },
-  description: "A decentralized vault application on Lisk Sepolia",
+  title: "Reksadana Vault",
+  description: "DeFi Vault Interface",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} antialiased`}>
-        <WalletProvider>
-          {children}
-        </WalletProvider>
+      <body className="font-sans">
+        <WalletProvider>{children}</WalletProvider>
       </body>
     </html>
   );
